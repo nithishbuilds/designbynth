@@ -3,7 +3,9 @@ designbynth Portfolio — Hosting Guide
 
 This site is a single self-contained file: index.html
 It includes all HTML, CSS (via Tailwind CDN), JavaScript, fonts (Google Fonts CDN),
-and your logo (embedded directly in the file). There are no other files to upload.
+your personal photo, your NTH logo (nav bar + browser tab favicon), and the
+Graphic Design Portfolio slider images — all embedded directly in the file.
+There are no other files to upload.
 
 HOW TO HOST IT
 ---------------
@@ -27,16 +29,24 @@ IMPORTANT — BEFORE GOING LIVE
        adminPass: 'portfolio2026',
    Change 'portfolio2026' to a strong password of your choice, then re-upload the file.
 
-2. Uploads are stored in the browser (localStorage), not a real database.
-   This means portfolio items you add through the Owner Login only show up
-   on the browser/device you added them from — not to other visitors.
-   If you want your uploads visible to everyone, you'll eventually need a
-   real backend (a database + image hosting). Ask if you'd like help setting
-   that up.
+2. Uploads through the Owner Login are stored in the browser (localStorage), not a
+   real database. Items you add there only show up on the browser/device you added
+   them from — not to other visitors. If you want your uploads visible to everyone,
+   you'll eventually need a real backend (a database + image hosting).
 
 3. Internet connection required.
    The page loads Tailwind CSS and Google Fonts from the internet (CDN).
    If your host blocks external requests, styling/fonts won't load.
+
+WHAT'S ON THE SITE
+--------------------
+- Cinematic intro animation using your photo
+- Your NTH logo in the nav bar AND browser tab (favicon)
+- About / Services sections
+- Graphic Design Portfolio — image slider with prev/next arrows, dots, and autoplay
+- Professional Video Editing (upload-only placeholder until you add work)
+- Contact form with WhatsApp enquiry (categories + budget ranges)
+- Password-protected Owner Login for adding portfolio items
 
 CONTACT INFO ON SITE
 ---------------------
