@@ -4,8 +4,8 @@ designbynth Portfolio — Hosting Guide
 This site is a single self-contained file: index.html
 It includes all HTML, CSS (via Tailwind CDN), JavaScript, fonts (Google Fonts CDN),
 your personal photo, your NTH logo (nav bar + browser tab favicon), the Graphic
-Design Portfolio slider images, and an on-site AI FAQ assistant — all embedded
-directly in the file. There are no other files to upload.
+Design Portfolio slider images, and an on-site AI assistant (chat + voice) — all
+embedded directly in the file. There are no other files to upload.
 
 HOW TO HOST IT
 ---------------
@@ -36,22 +36,32 @@ IMPORTANT — BEFORE GOING LIVE
 3. Internet connection required.
    The page loads Tailwind CSS and Google Fonts from the internet (CDN).
 
-4. The AI assistant (bottom-right chat button) is a built-in, rule-based FAQ helper
-   — it answers from a fixed knowledge base about your services, pricing, portfolio,
-   and contact info, and politely redirects anything off-topic. It runs entirely in
-   the browser (no external AI API, no ongoing cost). If you'd like it upgraded to
-   a true generative AI (more natural, handles more phrasing), that needs a small
-   backend to safely call an AI API — ask if you'd like help setting that up.
-   To edit its answers, search index.html for "AI_KB" and edit the keywords/answers.
+4. The AI assistant (bottom-right chat button) has:
+   - Text chat, same as before — answers from a fixed knowledge base about your
+     services, pricing, portfolio, and contact info, politely redirecting anything
+     off-topic. To edit its answers, search index.html for "AI_KB".
+   - A microphone button — visitors can tap it and speak their question instead
+     of typing (uses the browser's built-in speech recognition, Chrome/Edge/Safari
+     support this; hides itself automatically on browsers that don't).
+   - A voice on/off toggle (speaker icon, top-right of the chat panel) — when on,
+     the assistant speaks its replies aloud using the browser's built-in
+     text-to-speech. Visitors can mute this anytime with that toggle.
+   Both voice features run entirely in the visitor's browser — no external AI
+   voice API, no extra cost, no data sent anywhere.
+
+5. The intro animation has your photo "speak" a welcome moment — the photo frame
+   glows and gently pulses in sync as a speech bubble types out "Welcome to my
+   site!" next to it. To change the message, search index.html for
+   "Welcome to my site!" and edit the text.
 
 WHAT'S ON THE SITE
 --------------------
-- Cinematic intro animation using your photo
+- Cinematic intro animation using your photo, with a speaking welcome moment
 - Your NTH logo in the nav bar AND browser tab (favicon)
 - About / Services sections
 - Graphic Design Portfolio — image slider with prev/next arrows, dots, and autoplay
 - Professional Video Editing (upload-only placeholder until you add work)
-- On-site AI assistant — answers site-related questions only
+- On-site AI assistant — text chat + voice input/output, site-related questions only
 - Contact form with WhatsApp enquiry (categories + budget ranges)
 - Password-protected Owner Login for adding portfolio items
 
