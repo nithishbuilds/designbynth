@@ -3,9 +3,9 @@ designbynth Portfolio — Hosting Guide
 
 This site is a single self-contained file: index.html
 It includes all HTML, CSS (via Tailwind CDN), JavaScript, fonts (Google Fonts CDN),
-your personal photo, your NTH logo (nav bar + browser tab favicon), and the
-Graphic Design Portfolio slider images — all embedded directly in the file.
-There are no other files to upload.
+your personal photo, your NTH logo (nav bar + browser tab favicon), the Graphic
+Design Portfolio slider images, and an on-site AI FAQ assistant — all embedded
+directly in the file. There are no other files to upload.
 
 HOW TO HOST IT
 ---------------
@@ -31,12 +31,18 @@ IMPORTANT — BEFORE GOING LIVE
 
 2. Uploads through the Owner Login are stored in the browser (localStorage), not a
    real database. Items you add there only show up on the browser/device you added
-   them from — not to other visitors. If you want your uploads visible to everyone,
-   you'll eventually need a real backend (a database + image hosting).
+   them from — not to other visitors.
 
 3. Internet connection required.
    The page loads Tailwind CSS and Google Fonts from the internet (CDN).
-   If your host blocks external requests, styling/fonts won't load.
+
+4. The AI assistant (bottom-right chat button) is a built-in, rule-based FAQ helper
+   — it answers from a fixed knowledge base about your services, pricing, portfolio,
+   and contact info, and politely redirects anything off-topic. It runs entirely in
+   the browser (no external AI API, no ongoing cost). If you'd like it upgraded to
+   a true generative AI (more natural, handles more phrasing), that needs a small
+   backend to safely call an AI API — ask if you'd like help setting that up.
+   To edit its answers, search index.html for "AI_KB" and edit the keywords/answers.
 
 WHAT'S ON THE SITE
 --------------------
@@ -45,6 +51,7 @@ WHAT'S ON THE SITE
 - About / Services sections
 - Graphic Design Portfolio — image slider with prev/next arrows, dots, and autoplay
 - Professional Video Editing (upload-only placeholder until you add work)
+- On-site AI assistant — answers site-related questions only
 - Contact form with WhatsApp enquiry (categories + budget ranges)
 - Password-protected Owner Login for adding portfolio items
 
