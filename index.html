@@ -187,6 +187,50 @@
     .intro-photo, .intro-photo.intro-reveal{ animation:none !important; clip-path:none !important; transform:none !important; opacity:1 !important; }
     .intro-scan, .intro-glitchflash{ display:none !important; }
   }
+
+  /* ============================================================
+     AI ASSISTANT WIDGET
+  ============================================================ */
+  #aiToggleBtn{
+    position:fixed; right:20px; bottom:20px; z-index:95;
+    width:56px; height:56px; border-radius:9999px;
+    background:var(--redx, #ff2740); color:#08090b;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 0 1px rgba(255,39,64,.35), 0 8px 30px rgba(255,39,64,.35);
+    transition:transform .2s ease, box-shadow .2s ease;
+    cursor:pointer;
+  }
+  #aiToggleBtn:hover{ transform:scale(1.06); }
+  #aiToggleBtn svg{ width:24px; height:24px; }
+
+  #aiPanel{
+    position:fixed; z-index:96;
+    right:20px; bottom:88px;
+    width:min(360px, calc(100vw - 32px));
+    height:min(520px, calc(100vh - 140px));
+    display:flex; flex-direction:column;
+    opacity:0; transform:translateY(16px) scale(.98);
+    pointer-events:none;
+    transition:opacity .22s ease, transform .22s ease;
+  }
+  #aiPanel.open{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+
+  #aiMessages{ scrollbar-width:thin; }
+  #aiMessages::-webkit-scrollbar{ width:6px; }
+  #aiMessages::-webkit-scrollbar-thumb{ background:#2a2e35; border-radius:3px; }
+
+  .ai-msg{ max-width:86%; font-size:13px; line-height:1.5; }
+  .ai-msg.bot{ align-self:flex-start; }
+  .ai-msg.user{ align-self:flex-end; }
+
+  .ai-typing span{
+    display:inline-block; width:5px; height:5px; border-radius:9999px;
+    background:currentColor; margin:0 1.5px; opacity:.35;
+    animation:aiTypingBlink 1s infinite ease-in-out;
+  }
+  .ai-typing span:nth-child(2){ animation-delay:.15s; }
+  .ai-typing span:nth-child(3){ animation-delay:.3s; }
+  @keyframes aiTypingBlink{ 0%,80%,100%{ opacity:.25; } 40%{ opacity:1; } }
 </style>
 </head>
 
@@ -675,6 +719,41 @@
   </div>
 </div>
 
+<!-- ============================================================ -->
+<!-- AI ASSISTANT WIDGET                                            -->
+<!-- ============================================================ -->
+<button id="aiToggleBtn" type="button" aria-label="Open AI assistant">
+  <svg id="aiIconChat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+  <svg id="aiIconClose" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="hidden"><path d="M18 6L6 18M6 6l12 12"/></svg>
+</button>
+
+<div id="aiPanel">
+  <div class="bracket border border-line bg-panel/95 backdrop-blur rounded-sm shadow-glow-lg flex flex-col h-full overflow-hidden">
+    <!-- terminal-style header -->
+    <div class="flex items-center justify-between gap-2 px-4 py-3 border-b border-line">
+      <div class="flex items-center gap-2 min-w-0">
+        <span class="w-2 h-2 rounded-full bg-redx animate-pulse flex-shrink-0"></span>
+        <span class="font-mono text-[11px] uppercase tracking-widest text-inkmute truncate">designbynth_ai.exe</span>
+      </div>
+      <button id="aiCloseBtn" type="button" aria-label="Close" class="text-inkmute hover:text-redx transition flex-shrink-0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- messages -->
+    <div id="aiMessages" class="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3"></div>
+
+    <!-- input -->
+    <form id="aiForm" class="border-t border-line p-3 flex items-center gap-2">
+      <input id="aiInput" type="text" autocomplete="off" placeholder="Ask about services, pricing, work..."
+        class="flex-1 bg-void border border-line px-3 py-2.5 text-sm font-mono focus:border-redx transition placeholder:text-inkmute/60" />
+      <button type="submit" aria-label="Send" class="w-10 h-10 flex-shrink-0 bg-redx text-void flex items-center justify-center hover:bg-redhi transition">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+      </button>
+    </form>
+  </div>
+</div>
+
 <!-- Toast container -->
 <div id="toastWrap" class="fixed bottom-5 right-5 z-[90] space-y-2"></div>
 
@@ -997,6 +1076,143 @@
         </div>
       </div>
     `).join('') || uploadPlaceholder('Upload', 'md:col-span-2');
+  }
+
+  /* ============================================================
+     AI ASSISTANT (on-site FAQ helper — rule-based, no external calls)
+  ============================================================ */
+  const AI_KB = [
+    { keywords:['hi','hello','hey','yo','sup'],
+      answer:"Hey! I'm the designbynth site assistant. Ask me about services, pricing, portfolio, experience, or how to get in touch." },
+    { keywords:['who','nithish','designer','about you','about designbynth','you are'],
+      answer:"designbynth is Nithish — a visual designer, photographer, and editor based in Coimbatore, Tamil Nadu, working across logo design, motion design, poster design, photography, videography, image manipulation, digital retouching, and professional video editing." },
+    { keywords:['service','services','offer','what do you do','what can you do','specialise','specialize','expertise'],
+      answer:"Services on offer: Logo Design, Motion Design, Poster Design, Photography, Videography, Image Manipulation, Digital Retouching, and Professional Video Editing. Scroll to the Services section or ask about any one of these specifically." },
+    { keywords:['logo'],
+      answer:"Logo Design is one of the core services — custom wordmarks, monograms, and brand icons. Use the contact form and select \"Logo Design\" as the project type to enquire." },
+    { keywords:['motion','animation','animate'],
+      answer:"Motion Design covers kinetic typography, short animated teasers, and social motion graphics. Select \"Motion Design\" in the contact form to enquire." },
+    { keywords:['poster'],
+      answer:"Poster Design covers event posters, campaign creatives, and social ad posters — check the Graphic Design Portfolio slider for a sample. Select \"Poster Design\" in the contact form to enquire." },
+    { keywords:['photography','photo','photoshoot','portrait'],
+      answer:"Photography services include portrait, product, and event shoots. Select \"Photography\" in the contact form to enquire." },
+    { keywords:['videography','video shoot','filming'],
+      answer:"Videography covers on-location filming for events, brands, and short-form content. Select \"Videography\" in the contact form to enquire." },
+    { keywords:['manipulation','composite','photoshop edit'],
+      answer:"Image Manipulation covers creative composites and photo-editing work. Select \"Image Manipulation\" in the contact form to enquire." },
+    { keywords:['retouch','retouching','skin edit','beauty edit'],
+      answer:"Digital Retouching covers skin/beauty retouching and detailed photo cleanup. Select \"Digital Retouching\" in the contact form to enquire." },
+    { keywords:['video edit','video editing','editing','professional video'],
+      answer:"Professional Video Editing covers full edits — color grading, pacing, sound, and export — check the Video Editing section for samples. Select \"Professional Video Editing\" in the contact form to enquire." },
+    { keywords:['price','pricing','cost','budget','rate','charges','how much'],
+      answer:"Budget ranges on the contact form: Starting from ₹799, ₹1,000–₹2,000, ₹2,000–₹3,000, ₹3,000–₹5,000, and ₹5,000+. Pick the closest range and share your project details — exact pricing depends on scope, so the best next step is a quick WhatsApp enquiry." },
+    { keywords:['portfolio','work','sample','examples','projects','graphic design portfolio'],
+      answer:"You can browse real design work in the Graphic Design Portfolio slider, and video edits in the Professional Video Editing section further down the page." },
+    { keywords:['experience','years','how long','since when'],
+      answer:"2 years of professional experience across graphic design, photography, and video editing." },
+    { keywords:['contact','reach','email','phone','whatsapp','number','enquire','enquiry','hire','get in touch'],
+      answer:"Best way to reach out: use the contact form (it sends straight to WhatsApp) or message directly on WhatsApp at +91 93634 33837. Email: nithishvof@gmail.com." },
+    { keywords:['location','based','where are you','city','coimbatore'],
+      answer:"Based in Coimbatore, Tamil Nadu – 641001. Work is taken on remotely too." },
+    { keywords:['turnaround','delivery time','how long will it take','deadline'],
+      answer:"Turnaround depends on project scope — the fastest way to get a timeline is to send project details via the contact form or WhatsApp." },
+    { keywords:['admin','login','password','dashboard','upload panel'],
+      answer:"The admin/owner login is private and only for the site owner to manage the portfolio — I can't share access details, sorry!" },
+    { keywords:['thank','thanks','thank you','thx'],
+      answer:"You're welcome! Anything else about services, pricing, or the portfolio?" },
+    { keywords:['bye','goodbye','see you'],
+      answer:"Take care! Feel free to reach out via the contact form or WhatsApp whenever you're ready." },
+  ];
+
+  const AI_FALLBACK = "I can only help with questions about this website — services, pricing, portfolio, experience, or how to get in touch. Try asking something like \"What services do you offer?\" or \"What's your pricing?\"";
+  const AI_GREETING = "Hi! I'm the designbynth assistant. Ask me anything about the services, pricing, portfolio, or how to get in touch — I'll keep it to site-related questions only.";
+
+  function aiMatchAnswer(query){
+    const q = query.toLowerCase();
+    let best = null, bestScore = 0;
+    AI_KB.forEach(entry => {
+      let score = 0;
+      entry.keywords.forEach(k => { if(q.includes(k)) score += k.length; });
+      if(score > bestScore){ bestScore = score; best = entry; }
+    });
+    return best ? best.answer : null;
+  }
+
+  function aiEscapeHTML(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function aiAppendMessage(text, who){
+    const wrap = document.getElementById('aiMessages');
+    const bubble = document.createElement('div');
+    bubble.className = `ai-msg ${who} px-3.5 py-2.5 border ${who==='bot' ? 'border-line bg-void text-ink' : 'border-redx/30 bg-redx/10 text-ink'}`;
+    bubble.innerHTML = aiEscapeHTML(text).replace(/\n/g, '<br>');
+    wrap.appendChild(bubble);
+    wrap.scrollTop = wrap.scrollHeight;
+    return bubble;
+  }
+
+  function aiShowTyping(){
+    const wrap = document.getElementById('aiMessages');
+    const bubble = document.createElement('div');
+    bubble.className = 'ai-msg bot px-3.5 py-2.5 border border-line bg-void text-inkmute ai-typing';
+    bubble.id = 'aiTypingBubble';
+    bubble.innerHTML = '<span></span><span></span><span></span>';
+    wrap.appendChild(bubble);
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  function aiRemoveTyping(){
+    const el = document.getElementById('aiTypingBubble');
+    if(el) el.remove();
+  }
+
+  function initAIAssistant(){
+    const toggleBtn = document.getElementById('aiToggleBtn');
+    const closeBtn = document.getElementById('aiCloseBtn');
+    const panel = document.getElementById('aiPanel');
+    const form = document.getElementById('aiForm');
+    const input = document.getElementById('aiInput');
+    const iconChat = document.getElementById('aiIconChat');
+    const iconClose = document.getElementById('aiIconClose');
+    let greeted = false;
+
+    function openPanel(){
+      panel.classList.add('open');
+      iconChat.classList.add('hidden');
+      iconClose.classList.remove('hidden');
+      if(!greeted){
+        aiAppendMessage(AI_GREETING, 'bot');
+        greeted = true;
+      }
+      setTimeout(()=> input.focus(), 200);
+    }
+    function closePanel(){
+      panel.classList.remove('open');
+      iconChat.classList.remove('hidden');
+      iconClose.classList.add('hidden');
+    }
+
+    toggleBtn.addEventListener('click', ()=>{
+      panel.classList.contains('open') ? closePanel() : openPanel();
+    });
+    closeBtn.addEventListener('click', closePanel);
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      const text = input.value.trim();
+      if(!text) return;
+      aiAppendMessage(text, 'user');
+      input.value = '';
+      aiShowTyping();
+      setTimeout(()=>{
+        aiRemoveTyping();
+        const answer = aiMatchAnswer(text);
+        aiAppendMessage(answer || AI_FALLBACK, 'bot');
+      }, 500 + Math.random()*400);
+    });
   }
 
   /* ============================================================
@@ -1393,6 +1609,7 @@
   typeTerminal();
   initReveal();
   initIntro();
+  initAIAssistant();
 
 })();
 </script>
